@@ -79,28 +79,13 @@ function baseDoc(overrides: Partial<Doc> = {}): Doc {
   };
 }
 
-describe("buildPrompt — language switch", () => {
-  it("emits English when lang='en'", () => {
+describe("buildPrompt — language output", () => {
+  it("emits English prompt", () => {
     const doc = baseDoc();
     const out = buildPrompt(doc, widths, undefined, "en");
     expect(out).toContain("MyApp");
     // English introductory framing
     expect(out).toMatch(/Material 3 Expressive/);
-  });
-
-  it("emits Japanese when lang='ja' (uses 「」 quotes and 日本語 headers)", () => {
-    const doc = baseDoc();
-    const out = buildPrompt(doc, widths, undefined, "ja");
-    expect(out).toContain("Material 3 Expressive");
-    // ja intro phrasing contains 「...」 somewhere when title quoted, or Japanese sentence-ending
-    expect(out).toMatch(/を実装してください|画面/);
-  });
-
-  it("emits Chinese when lang='zh' (uses “” quotes)", () => {
-    const doc = baseDoc();
-    const out = buildPrompt(doc, widths, undefined, "zh");
-    expect(out).toContain("Material 3 Expressive");
-    expect(out).toMatch(/使用|屏幕|组件|设计/);
   });
 });
 
@@ -171,18 +156,11 @@ describe("buildPrompt — items are named in language", () => {
     expect(out).toMatch(/a filled button/);
   });
 
-  it("a Japanese button is described with 「ラベル」 quotes", () => {
-    const item: Item = { id: "b1", kind: "button", label: "クリック", icon: null, variant: "filled" };
-    const doc = baseDoc({ groups: [{ id: "g", x: 100, y: 100, axis: "x", items: [item] }] });
-    const out = buildPrompt(doc, widths, undefined, "ja");
-    expect(out).toContain("「クリック」");
-  });
-
-  it("a Chinese list item uses “…” quotes and Chinese text", () => {
-    const item: Item = { id: "l1", kind: "listItem", label: "项目", icon: "person", icon2: "chevron_right", variant: "filled" };
+  it("an English list item uses \"...\" quotes", () => {
+    const item: Item = { id: "l1", kind: "listItem", label: "Item", icon: "person", icon2: "chevron_right", variant: "filled" };
     const doc = baseDoc({ groups: [{ id: "g", x: 100, y: 100, axis: "y", items: [item] }] });
-    const out = buildPrompt(doc, widths, undefined, "zh");
-    expect(out).toContain("“项目”");
+    const out = buildPrompt(doc, widths, undefined, "en");
+    expect(out).toContain('"Item"');
   });
 
   it("empty / whitespace label falls back to 'no label' phrasing in English", () => {

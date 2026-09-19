@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   applicationName: "PS Canvas",
   alternates: { canonical: `${BASE}/` },
   description:
-    "Sketch Material 3 Expressive screens in the browser and turn them into vibe-coding prompts. / Material 3 Expressive の画面をブラウザで組み立てて、そのままプロンプトに。",
+    "Sketch Material 3 Expressive screens in the browser and turn them into vibe-coding prompts.",
   openGraph: {
     title: "PS Canvas",
     description: "Design Material 3 Expressive screens, link them, preview them, and copy a prompt for your AI coding tool.",
@@ -30,7 +30,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ja">
+    <html lang="en">
       <head>
         {/* before the first paint: the panel widths and the theme colours the last visit left, so
             the shell drawn while the editor loads is the one that appears. The editor reads the

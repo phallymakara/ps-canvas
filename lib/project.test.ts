@@ -136,7 +136,7 @@ describe("projectFileName", () => {
     ['\\/:*?"<>|', "ps-canvas.json"],
     ["  My\t app\n name  ", "ps-canvas My app name.json"],
     ['a\\b/c:d*e?f"g<h>i|j', "ps-canvas a b c d e f g h i j.json"],
-    ["設計 한국어 🎨.v2", "ps-canvas 設計 한국어 🎨.v2.json"],
+    ["Design 🎨.v2", "ps-canvas Design 🎨.v2.json"],
   ])("sanitizes %j to %j", (title, expected) => {
     expect(projectFileName({ ...doc(), title })).toBe(expected);
   });

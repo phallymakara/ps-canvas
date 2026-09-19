@@ -124,13 +124,8 @@ function PickerActions({ p }: { p: Palette }) {
   );
 }
 
-/** the seven letters over a month's columns, in the language the sketch is written in */
-const WEEKDAYS: Record<string, string[]> = {
-  ja: ["日", "月", "火", "水", "木", "金", "土"],
-  en: ["S", "M", "T", "W", "T", "F", "S"],
-  zh: ["日", "一", "二", "三", "四", "五", "六"],
-  ko: ["일", "월", "화", "수", "목", "금", "토"],
-};
+/** the seven letters over a month's columns */
+const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 /** this month as a grid: its days from the weekday it starts on, with today on a filled circle */
 function Month({ at, p, cell }: { at: Date; p: Palette; cell: number }) {
@@ -142,7 +137,7 @@ function Month({ at, p, cell }: { at: Date; p: Palette; cell: number }) {
   return (
     <div style={{ padding: "0 24px" }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)" }}>
-        {(WEEKDAYS[lang] ?? WEEKDAYS.en).map((d, i) => (
+        {WEEKDAYS.map((d, i) => (
           <span key={i} style={{ height: cell, display: "grid", placeItems: "center", fontSize: 12, fontWeight: 600, color: p.onSurfaceVariant }}>
             {d}
           </span>

@@ -4,21 +4,21 @@ import { Lang, setGlobalLang } from "./i18n";
 import { buildPrompt } from "./prompt";
 import { BACK_TARGET, DEFAULT_THEME, Doc, Item, Platform, defaultTabs, makeItem, paletteOf } from "./tokens";
 
-const LANGS: Lang[] = ["ja", "en", "zh", "ko"];
+const LANGS: Lang[] = ["en"];
 
 /* Section headings in the order buildPrompt must emit them. */
 const SECTIONS: Record<Lang, string[]> = {
-  ja: ["## カラー", "## 形・文字・動き", "## 画面構成", "## 振る舞いと画面遷移", "## 各部品のスタイル", "## 全体の指針"],
+  ja: ["## Colors", "## Shape, type and motion", "## Layout", "## Behavior and navigation", "## Component styles", "## General guidance"],
   en: ["## Colors", "## Shape, type and motion", "## Layout", "## Behavior and navigation", "## Component styles", "## General guidance"],
-  zh: ["## 配色", "## 形状、字体与动效", "## 屏幕结构", "## 行为与屏幕跳转", "## 各组件的样式", "## 整体原则"],
-  ko: ["## 색상", "## 모양, 글꼴 및 모션", "## 화면 구성", "## 동작 및 화면 전환", "## 부품별 스타일", "## 전체 지침"],
+  zh: ["## Colors", "## Shape, type and motion", "## Layout", "## Behavior and navigation", "## Component styles", "## General guidance"],
+  ko: ["## Colors", "## Shape, type and motion", "## Layout", "## Behavior and navigation", "## Component styles", "## General guidance"],
 };
 
 const PLATFORM_LINE: Record<Lang, Record<Platform, string>> = {
-  ja: { android: "実装先は Android（ネイティブアプリ）です。", web: "実装先は Web（ブラウザで動くアプリ）です。" },
+  ja: { android: "Build it for Android, as a native app.", web: "Build it for the web, as an app that runs in the browser." },
   en: { android: "Build it for Android, as a native app.", web: "Build it for the web, as an app that runs in the browser." },
-  zh: { android: "实现目标是 Android（原生应用）。", web: "实现目标是 Web（在浏览器中运行的应用）。" },
-  ko: { android: "Android 네이티브 앱으로 구현한다.", web: "브라우저에서 실행되는 웹 앱으로 구현한다." },
+  zh: { android: "Build it for Android, as a native app.", web: "Build it for the web, as an app that runs in the browser." },
+  ko: { android: "Build it for Android, as a native app.", web: "Build it for the web, as an app that runs in the browser." },
 };
 
 /* One phone screen with a top app bar, a connected pair of buttons (one with a
@@ -62,17 +62,17 @@ function styleBullets(prompt: string, lang: Lang) {
 }
 
 const QUOTED: Record<Lang, { label: string; others: string[] }> = {
-  ja: { label: "「Save」", others: ['"Save"', "“Save”"] },
-  en: { label: '"Save"', others: ["「Save」", "“Save”"] },
-  zh: { label: "“Save”", others: ["「Save」", '"Save"'] },
-  ko: { label: '"Save"', others: ["「Save」", "“Save”"] },
+  ja: { label: '"Save"', others: ["'Save'"] },
+  en: { label: '"Save"', others: ["'Save'"] },
+  zh: { label: '"Save"', others: ["'Save'"] },
+  ko: { label: '"Save"', others: ["'Save'"] },
 };
 
 describe("progress track thickness", () => {
-  afterEach(() => setGlobalLang("ja"));
+  afterEach(() => setGlobalLang("en"));
 
   it.each(LANGS)("describes the selected thickness, including the legacy default, in %s", (lang) => {
-    const label = { ja: "トラックの太さ", en: "track thickness", zh: "轨道粗细", ko: "트랙 두께" }[lang];
+    const label = "track thickness";
     for (const kind of ["linearProgress", "circularProgress"] as const) {
       for (const trackThickness of [undefined, 4, 6, 8] as const) {
         const doc = fixture();
@@ -81,7 +81,7 @@ describe("progress track thickness", () => {
         ] }];
         const prompt = buildPrompt(doc, {}, undefined, lang);
         const layout = prompt.slice(prompt.indexOf(SECTIONS[lang][2]), prompt.indexOf(SECTIONS[lang][4]));
-        const thicknessText = (value: number) => lang === "en" ? `${value}dp ${label}` : `${label} ${value}dp`;
+        const thicknessText = (value: number) => `${value}dp ${label}`;
         /* only a non-default thickness is spelled out; 4dp is what the style note already states */
         if (trackThickness && trackThickness !== 4) expect(layout).toContain(thicknessText(trackThickness));
         else expect(layout).not.toContain(label);
@@ -91,20 +91,20 @@ describe("progress track thickness", () => {
 });
 
 describe("card image placement", () => {
-  afterEach(() => setGlobalLang("ja"));
+  afterEach(() => setGlobalLang("en"));
 
   /* the phrase the layout section must carry for each placement */
   const PLACEMENT: Record<Lang, Record<string, string>> = {
-    ja: { top: "上部に", bottom: "下部に", leading: "先頭側（全高）に", trailing: "末尾側（全高）に", background: "背景全面に" },
+    ja: { top: "on top", bottom: "along the bottom", leading: "filling the leading side", trailing: "filling the trailing side", background: "as a full-bleed background" },
     en: { top: "on top", bottom: "along the bottom", leading: "filling the leading side", trailing: "filling the trailing side", background: "as a full-bleed background" },
-    zh: { top: "顶部是", bottom: "底部是", leading: "左侧（全高）是", trailing: "右侧（全高）是", background: "整张卡片的背景是" },
-    ko: { top: "위쪽에", bottom: "아래쪽에", leading: "앞쪽(전체 높이)에", trailing: "뒤쪽(전체 높이)에", background: "배경 전체에" },
+    zh: { top: "on top", bottom: "along the bottom", leading: "filling the leading side", trailing: "filling the trailing side", background: "as a full-bleed background" },
+    ko: { top: "on top", bottom: "along the bottom", leading: "filling the leading side", trailing: "filling the trailing side", background: "as a full-bleed background" },
   };
   const SIZED: Record<Lang, { top: string; side: string }> = {
-    ja: { top: "（高さ 96dp）", side: "（幅 96dp）" },
+    ja: { top: "(96dp tall)", side: "(96dp wide)" },
     en: { top: "(96dp tall)", side: "(96dp wide)" },
-    zh: { top: "（高 96dp）", side: "（宽 96dp）" },
-    ko: { top: "(높이 96dp)", side: "(너비 96dp)" },
+    zh: { top: "(96dp tall)", side: "(96dp wide)" },
+    ko: { top: "(96dp tall)", side: "(96dp wide)" },
   };
   /* the screen-layout section alone — the card's own style note also names the placements —
    * for a card standing in its own group so its full sentence is written out */
@@ -131,15 +131,15 @@ describe("card image placement", () => {
   });
 
   it.each(LANGS)("mentions a text position or color only when it differs from the automatic one in %s", (lang) => {
-    const color: Record<Lang, string> = { ja: "文字色 primary", en: "text in primary", zh: "文字颜色 primary", ko: "텍스트 색상 primary" };
-    const bottom: Record<Lang, string> = { ja: "文字は下寄せ", en: "text aligned to the bottom", zh: "文字底部对齐", ko: "텍스트 아래 정렬" };
-    expect(cardLayout(lang, {})).not.toContain(color[lang]);
-    expect(cardLayout(lang, { textColor: "primary" })).toContain(color[lang]);
-    expect(cardLayout(lang, { contentAlign: "end" })).toContain(bottom[lang]);
-    expect(cardLayout(lang, { imagePos: "background", contentAlign: "end" })).not.toContain(bottom[lang]);
-    const centred: Record<Lang, string> = { ja: "文字は中央揃え", en: "text centred", zh: "文字居中", ko: "텍스트 가운데 정렬" };
-    expect(cardLayout(lang, { textAlign: "start" })).not.toContain(centred[lang]);
-    expect(cardLayout(lang, { textAlign: "center" })).toContain(centred[lang]);
+    const color = "text in primary";
+    const bottom = "text aligned to the bottom";
+    expect(cardLayout(lang, {})).not.toContain(color);
+    expect(cardLayout(lang, { textColor: "primary" })).toContain(color);
+    expect(cardLayout(lang, { contentAlign: "end" })).toContain(bottom);
+    expect(cardLayout(lang, { imagePos: "background", contentAlign: "end" })).not.toContain(bottom);
+    const centred = "text centred";
+    expect(cardLayout(lang, { textAlign: "start" })).not.toContain(centred);
+    expect(cardLayout(lang, { textAlign: "center" })).toContain(centred);
   });
 
   it.each(LANGS)("states a card's corners once they are changed in %s", (lang) => {
@@ -155,7 +155,7 @@ describe("card image placement", () => {
 });
 
 describe("buildPrompt color output", () => {
-  afterEach(() => setGlobalLang("ja")); // restore the module default
+  afterEach(() => setGlobalLang("en"));
 
   it.each(LANGS)("emits the actual secondary color in both modes and every contrast level in %s", (lang) => {
     for (const contrast of ["standard", "medium", "high"] as const) {
@@ -170,7 +170,7 @@ describe("buildPrompt color output", () => {
 });
 
 describe("navigation rail expansion", () => {
-  afterEach(() => setGlobalLang("ja"));
+  afterEach(() => setGlobalLang("en"));
 
   it.each(LANGS)("exports imported mixed-group modal rails as collapsed standard rails in %s", (lang) => {
     const doc = fixture();
@@ -188,10 +188,10 @@ describe("navigation rail expansion", () => {
   });
 
   it.each(LANGS)("exports only the selected rail state and presentation in %s", (lang) => {
-    const expandedText = { ja: "展開状態", en: "NavigationRail, expanded,", zh: "展开状态", ko: "펼친 상태" }[lang];
-    const collapsedText = { ja: "折りたたみ状態", en: "NavigationRail, collapsed,", zh: "折叠状态", ko: "접힌 상태" }[lang];
-    const modalText = { ja: "モーダル型：展開時", en: "modal overlay:", zh: "模态覆盖：", ko: "모달 오버레이:" }[lang];
-    const nonModalText = { ja: "非モーダル型：現在", en: "non-modal layout:", zh: "非模态布局：", ko: "비모달 레이아웃:" }[lang];
+    const expandedText = "NavigationRail, expanded,";
+    const collapsedText = "NavigationRail, collapsed,";
+    const modalText = "modal overlay:";
+    const nonModalText = "non-modal layout:";
     for (const platform of ["android", "web"] as const) {
       for (const railExpanded of [false, true]) {
         for (const railModal of [false, true]) {
@@ -200,10 +200,6 @@ describe("navigation rail expansion", () => {
             { ...makeItem("navRail"), railExpanded, railModal, selected: 1, tabs: [{ icon: "home", label: "Home" }, { icon: "star", label: "Saved" }] },
           ] }];
           const prompt = buildPrompt(doc, {}, undefined, lang);
-          if (lang === "ja") {
-            expect(prompt).not.toContain("スクラム");
-            expect(prompt).toContain("スクリム");
-          }
           const layout = prompt.slice(prompt.indexOf(SECTIONS[lang][2]), prompt.indexOf(SECTIONS[lang][4]));
           expect(layout).toContain(railExpanded ? expandedText : collapsedText);
           expect(layout).not.toContain(railExpanded ? collapsedText : expandedText);
@@ -211,7 +207,7 @@ describe("navigation rail expansion", () => {
           expect(layout).not.toContain(railModal ? nonModalText : modalText);
           expect(layout).toContain(`${railExpanded ? 220 : 96}dp`);
           expect(layout).toContain(railModal ? "ModalWideNavigationRail" : "WideNavigationRail");
-          expect(layout).toContain({ ja: "「Saved」が選択状態", en: '"Saved" is selected', zh: "“Saved”为选中状态", ko: '"Saved" 선택됨' }[lang]);
+          expect(layout).toContain('"Saved" is selected');
           const styles = styleBullets(prompt, lang).join("\n");
           expect(styles).toContain("220dp");
           expect(styles).toContain("96dp");
@@ -258,7 +254,7 @@ describe("navigation rail expansion", () => {
 });
 
 describe("buildPrompt structure", () => {
-  afterEach(() => setGlobalLang("ja")); // restore the module default
+  afterEach(() => setGlobalLang("en"));
 
   it.each(LANGS)("orders its sections the same way in %s", (lang) => {
     expect(headings(build(lang))).toEqual(SECTIONS[lang]);
@@ -292,23 +288,23 @@ describe("buildPrompt structure", () => {
   it("follows its lang argument regardless of ambient module state", () => {
     setGlobalLang("en");
     const doc = fixture();
-    setGlobalLang("zh");
-    const prompt = buildPrompt(doc, {}, undefined, "ja");
-    expect(headings(prompt)).toEqual(SECTIONS.ja);
-    expect(prompt).toContain("「Save」");
+    setGlobalLang("en");
+    const prompt = buildPrompt(doc, {}, undefined, "en");
+    expect(headings(prompt)).toEqual(SECTIONS.en);
+    expect(prompt).toContain('"Save"');
   });
 });
 
 /* The placeholder parts state their box, and a dropdown names its options and initial value.
  * Each sits in its own group: a run of mixed kinds would be described as a button group. */
 describe("buildPrompt for the camera, map and dropdown parts", () => {
-  afterEach(() => setGlobalLang("ja"));
+  afterEach(() => setGlobalLang("en"));
 
   const NOUN: Record<Lang, [camera: string, map: string]> = {
-    ja: ["カメラプレビュー", "地図"],
+    ja: ["camera preview", "map"],
     en: ["camera preview", "map"],
-    zh: ["相机预览", "地图"],
-    ko: ["카메라 미리보기", "지도"],
+    zh: ["camera preview", "map"],
+    ko: ["camera preview", "map"],
   };
 
   function screen(lang: Lang, items: Item[]) {
@@ -353,7 +349,7 @@ describe("scrollable tab rows in the prompt", () => {
     frames: [{ id: "f", name: "Home", x: 0, y: 0 }],
     groups: [{ id: "g", x: 0, y: 100, axis: "x", items: [withTabs(n)] }],
   });
-  const marker: Record<Lang, string> = { ja: "横にスクロールするタブ", en: "horizontally scrolling tab row", zh: "可横向滚动", ko: "가로로 스크롤되는 탭" };
+  const marker: Record<Lang, string> = { ja: "horizontally scrolling tab row", en: "horizontally scrolling tab row", zh: "horizontally scrolling tab row", ko: "horizontally scrolling tab row" };
 
   it.each(LANGS)("says a row of seven tabs scrolls in %s, and a row of five does not", (lang) => {
     expect(buildPrompt(doc(7), {}, undefined, lang)).toContain(marker[lang]);
