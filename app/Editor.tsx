@@ -116,8 +116,7 @@ import { Preview } from "@/components/Preview";
 import { Logo } from "@/components/Logo";
 import { PartsPalette } from "@/components/PartsPalette";
 import { PromptPanel } from "@/components/PromptPanel";
-import { GitHubLink, Mode, Toolbar } from "@/components/Toolbar";
-import { LangMenu } from "@/components/Menus";
+import { Mode, Toolbar } from "@/components/Toolbar";
 import { AiActionKey, AiPanel, aiErrorText } from "@/components/AiPanel";
 import { TidyState, PANEL_FADE_H } from "@/components/ui";
 import { AiSettings, DEFAULT_AI, hasKey, isSecureUrl, loadAiSettings, proposeBehavior, proposeDescription, pushHistory, saveAiSettings } from "@/lib/ai";
@@ -453,7 +452,7 @@ export default function Editor({ initialLang, onReady }: { initialLang: Lang; on
     futureRef.current = futureRef.current.map((snap) => translateSnapshot(snap, next));
   };
   const [isMobile, setIsMobile] = useState(false);
-  const [sheet, setSheet] = useState<"edit" | "settings" | "lang" | null>(null);
+  const [sheet, setSheet] = useState<"edit" | "settings" | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
   /** frame being rendered offscreen for the PNG export */
   const [exportFrame, setExportFrame] = useState<Frame | null>(null);
@@ -3993,8 +3992,6 @@ export default function Editor({ initialLang, onReady }: { initialLang: Lang; on
                 </div>
               ))}
               <div style={{ flex: 1 }} onClick={() => !leftOpen && setLeftOpen(true)} />
-              <LangMenu p={p} onLang={changeLanguage} side="right" size={44} />
-              <GitHubLink p={p} size={44} />
             </div>
             {leftOpen && (
             <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
@@ -4468,7 +4465,6 @@ export default function Editor({ initialLang, onReady }: { initialLang: Lang; on
             rightInset={showRight ? rightW : 0}
             mobile={isMobile}
             onSettings={() => setSheet(sheet === "settings" ? null : "settings")}
-            onLangSheet={() => setSheet(sheet === "lang" ? null : "lang")}
             onPrompt={async () => {
               try {
                 await navigator.clipboard.writeText(effectivePrompt(doc, widths, lang));
@@ -4551,18 +4547,6 @@ export default function Editor({ initialLang, onReady }: { initialLang: Lang; on
             {isMobile && sheet === "settings" && (
               <BottomSheet key="settings" p={p} onClose={() => setSheet(null)}>
                 <MobileSettings palette={p} paletteKey={paletteKey} onPalette={setPaletteKey} theme={theme} onTheme={patchTheme} />
-              </BottomSheet>
-            )}
-            {isMobile && sheet === "lang" && (
-              <BottomSheet key="lang" p={p} onClose={() => setSheet(null)}>
-                <MobileLang
-                  palette={p}
-                  lang={lang}
-                  onLang={(l) => {
-                    changeLanguage(l);
-                    setSheet(null);
-                  }}
-                />
               </BottomSheet>
             )}
           </AnimatePresence>

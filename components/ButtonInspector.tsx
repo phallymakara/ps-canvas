@@ -39,6 +39,7 @@ import { Field, NamedSizes, PanelShell, Section, Segmented, Select, SelectOption
 import { AiHooks } from "./Inspector";
 import { LinkStage, TapStage } from "./TapStage";
 import { AlignBox, EntryList, IconCell, NoteSection, PartHeader, PartTabs, PlaceFn, StyleRun, Tab, WidthRun, actionOptionsOf } from "./PartPanel";
+import { CustomStyleSection } from "./CustomStyleSection";
 import { KIND_TEXT, t, useLang } from "@/lib/i18n";
 
 export type { PlaceFn };
@@ -416,6 +417,7 @@ export function ButtonInspector({
               <AlignBox key={item.id} onPlace={onPlace} p={p} />
             </Section>
           )}
+          <CustomStyleSection item={item} onChange={onChange} palette={p} />
         </div>
       )}
 

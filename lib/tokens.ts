@@ -1659,6 +1659,28 @@ export type Item = {
   layout?: PartLayout;
   /** how many cards a carousel holds */
   count?: number;
+  /** custom hex or CSS color for background/surface */
+  customBg?: string;
+  /** custom hex or CSS color for text/label */
+  customColor?: string;
+  /** custom border outline color */
+  customBorderColor?: string;
+  /** custom border stroke width in dp/px */
+  customBorderWidth?: number;
+  /** custom corner radius override in dp/px */
+  customRadius?: number;
+  /** custom text size in sp/px */
+  customFontSize?: number;
+  /** custom font weight (400-900) */
+  customFontWeight?: number;
+  /** custom inner padding in dp/px */
+  customPadding?: number;
+  /** custom opacity (0..100) */
+  customOpacity?: number;
+  /** custom height override in dp/px */
+  customHeight?: number;
+  /** custom elevation shadow level (0..5) */
+  customShadow?: number;
   /** runtime-only: the editor is showing this FAB's menu open. Never written to JSON. */
   [fabOpen]?: boolean;
   /** runtime-only: the menu rises out of the part's top rather than dropping below it. */
@@ -2412,88 +2434,95 @@ export const progressThickness = (it: Item): number => {
   return it.kind === "circularProgress" ? Math.min(v, maxRingThickness(it.size ?? KIND_SPEC.circularProgress.w)) : v;
 };
 
-export function sizeOf(it: Item, widths: Record<string, number>) {
+export function sizeOf(it: Item, widths: Record<string, number>): { w: number; h: number } {
   const s = KIND_SPEC[it.kind];
   const n = it.size ?? s.defSize ?? s.w;
-  switch (it.kind) {
-    case "switch":
-      return { w: it.size ?? widths[it.id] ?? s.w, h: s.h };
-    case "button":
-      return { w: it.size ?? widths[it.id] ?? s.w, h: buttonHeightOf(it) };
-    case "extendedFab":
-      return menuOpen(it)
-        ? { w: widths[it.id] ?? 220, h: menuHeight(it, extendedFabHeight(it)) }
-        : { w: widths[it.id] ?? 128, h: extendedFabHeight(it) };
-    case "chip":
-      return { w: widths[it.id] ?? 128, h: chipHeightOf(it) };
-    case "splitButton":
-      return { w: widths[it.id] ?? 128, h: buttonHeightOf(it) + (menuOpen(it) ? SPLIT_MENU_SHEET_GAP + splitMenuHeight(it) : 0) };
-    case "checkbox":
-    case "radio":
-      return { w: widths[it.id] ?? 128, h: s.h };
-    case "fabMenu":
-      /* the menu is as wide as its widest entry: nothing to set, so nothing to get wrong */
-      return { w: widths[it.id] ?? n, h: 56 + (it.tabs?.length ?? 0) * (FAB_MENU_ITEM_H + FAB_MENU_GAP) };
-    case "toolbar":
-      return { w: toolbarWidth(it), h: s.h };
-    case "tabs":
-      return { w: n, h: s.h };
-    case "text":
-      return { w: widths[it.id] ?? 120, h: Math.round(n * 1.3) };
-    case "fab":
-      return menuOpen(it) ? { w: widths[it.id] ?? 220, h: menuHeight(it, FAB_MENU_CLOSE) } : { w: n, h: n };
-    case "iconButton":
-    case "circularProgress":
-    case "loadingIndicator":
-      return { w: n, h: n };
-    /* a picture is as tall as it was made; square until it is given a height of its own */
-    case "image":
-      return { w: n, h: it.size2 ?? n };
-    case "camera":
-      return { w: n, h: it.size2 ?? Math.round((n * 4) / 3) };
-    case "map":
-      return { w: n, h: it.size2 ?? Math.round((n * 3) / 4) };
-    case "topAppBar":
-      /* the status-bar inset belongs to a phone: a bar wider than one has no status bar above it.
-       * (An Android tablet does; the canvas leaves that to the prompt.) */
-      return { w: n, h: topBarHeightOf(it) + (n > PHONE_W ? 0 : STATUS_BAR_H) };
-    case "searchBar":
-    case "bottomNav":
-    case "listItem":
-    case "textField":
-    case "select":
-    case "slider":
-    case "linearProgress":
-    case "divider":
-      return { w: n, h: s.h };
-    case "carousel":
-      return { w: n, h: it.size2 ?? s.h };
-    case "datePicker": {
-      const l = dateLayoutOf(it);
-      /* the calendar's rows follow its width, so a wider dialog is a taller one */
-      const cell = Math.round((n - 24 * 2) / 7);
-      /* the headline, the month row, seven rows of days and the two text buttons */
-      return { w: n, h: l === "input" ? 96 : l === "docked" ? 120 + cell * 7 : 164 + cell * 7 };
+  const res = (() => {
+    switch (it.kind) {
+      case "switch":
+        return { w: it.size ?? widths[it.id] ?? s.w, h: s.h };
+      case "button":
+        return { w: it.size ?? widths[it.id] ?? s.w, h: buttonHeightOf(it) };
+      case "extendedFab":
+        return menuOpen(it)
+          ? { w: widths[it.id] ?? 220, h: menuHeight(it, extendedFabHeight(it)) }
+          : { w: widths[it.id] ?? 128, h: extendedFabHeight(it) };
+      case "chip":
+        return { w: widths[it.id] ?? 128, h: chipHeightOf(it) };
+      case "splitButton":
+        return { w: widths[it.id] ?? 128, h: buttonHeightOf(it) + (menuOpen(it) ? SPLIT_MENU_SHEET_GAP + splitMenuHeight(it) : 0) };
+      case "checkbox":
+      case "radio":
+        return { w: widths[it.id] ?? 128, h: s.h };
+      case "fabMenu":
+        /* the menu is as wide as its widest entry: nothing to set, so nothing to get wrong */
+        return { w: widths[it.id] ?? n, h: 56 + (it.tabs?.length ?? 0) * (FAB_MENU_ITEM_H + FAB_MENU_GAP) };
+      case "toolbar":
+        return { w: toolbarWidth(it), h: s.h };
+      case "tabs":
+        return { w: n, h: s.h };
+      case "text":
+        return { w: widths[it.id] ?? 120, h: Math.round(n * 1.3) };
+      case "fab":
+        return menuOpen(it) ? { w: widths[it.id] ?? 220, h: menuHeight(it, FAB_MENU_CLOSE) } : { w: n, h: n };
+      case "iconButton":
+      case "circularProgress":
+      case "loadingIndicator":
+        return { w: n, h: n };
+      /* a picture is as tall as it was made; square until it is given a height of its own */
+      case "image":
+        return { w: n, h: it.size2 ?? n };
+      case "camera":
+        return { w: n, h: it.size2 ?? Math.round((n * 4) / 3) };
+      case "map":
+        return { w: n, h: it.size2 ?? Math.round((n * 3) / 4) };
+      case "topAppBar":
+        /* the status-bar inset belongs to a phone: a bar wider than one has no status bar above it.
+         * (An Android tablet does; the canvas leaves that to the prompt.) */
+        return { w: n, h: topBarHeightOf(it) + (n > PHONE_W ? 0 : STATUS_BAR_H) };
+      case "searchBar":
+      case "bottomNav":
+      case "listItem":
+      case "textField":
+      case "select":
+      case "slider":
+      case "linearProgress":
+      case "divider":
+        return { w: n, h: s.h };
+      case "carousel":
+        return { w: n, h: it.size2 ?? s.h };
+      case "datePicker": {
+        const l = dateLayoutOf(it);
+        /* the calendar's rows follow its width, so a wider dialog is a taller one */
+        const cell = Math.round((n - 24 * 2) / 7);
+        /* the headline, the month row, seven rows of days and the two text buttons */
+        return { w: n, h: l === "input" ? 96 : l === "docked" ? 120 + cell * 7 : 164 + cell * 7 };
+      }
+      case "timePicker": {
+        const dial = Math.min(256, n - 48);
+        /* the heading, the two plates, the dial and the two text buttons */
+        return { w: n, h: timeLayoutOf(it) === "input" ? 204 : 196 + dial };
+      }
+      case "card":
+        return { w: n, h: it.size2 ?? Math.round(n * 0.5875) };
+      case "box":
+        return { w: n, h: it.size2 ?? s.h };
+      case "navRail":
+        return { w: railWidth(it), h: it.size2 ?? s.h };
+      default:
+        return { w: s.w, h: s.h };
     }
-    case "timePicker": {
-      const dial = Math.min(256, n - 48);
-      /* the heading, the two plates, the dial and the two text buttons */
-      return { w: n, h: timeLayoutOf(it) === "input" ? 204 : 196 + dial };
-    }
-    case "card":
-      return { w: n, h: it.size2 ?? Math.round(n * 0.5875) };
-    case "box":
-      return { w: n, h: it.size2 ?? s.h };
-    case "navRail":
-      return { w: railWidth(it), h: it.size2 ?? s.h };
-    default:
-      return { w: s.w, h: s.h };
-  }
+  })();
+  return {
+    w: res.w,
+    h: it.customHeight ?? res.h,
+  };
 }
 
 /** Corners for a part that is not part of a connected run. Defaults follow the
  *  document's shape scale; a radius the author typed in is kept as is. */
 export function baseRadii(it: Item): Radii {
+  if (it.customRadius !== undefined) return uniformRadii(it.customRadius);
   const s = KIND_SPEC[it.kind];
   switch (it.kind) {
     /* a button stays fully round whatever height it is given */

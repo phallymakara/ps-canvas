@@ -132,11 +132,11 @@ describe("isProject", () => {
 
 describe("projectFileName", () => {
   it.each([
-    ["", "m3e-canvas.json"], [" \t\n ", "m3e-canvas.json"],
-    ['\\/:*?"<>|', "m3e-canvas.json"],
-    ["  My\t app\n name  ", "m3e-canvas My app name.json"],
-    ['a\\b/c:d*e?f"g<h>i|j', "m3e-canvas a b c d e f g h i j.json"],
-    ["設計 한국어 🎨.v2", "m3e-canvas 設計 한국어 🎨.v2.json"],
+    ["", "ps-canvas.json"], [" \t\n ", "ps-canvas.json"],
+    ['\\/:*?"<>|', "ps-canvas.json"],
+    ["  My\t app\n name  ", "ps-canvas My app name.json"],
+    ['a\\b/c:d*e?f"g<h>i|j', "ps-canvas a b c d e f g h i j.json"],
+    ["設計 한국어 🎨.v2", "ps-canvas 設計 한국어 🎨.v2.json"],
   ])("sanitizes %j to %j", (title, expected) => {
     expect(projectFileName({ ...doc(), title })).toBe(expected);
   });
@@ -211,5 +211,22 @@ describe("readProject", () => {
     } finally {
       read.mockRestore();
     }
+  });
+
+  it("reads and preserves custom styling attributes on items", async () => {
+    const value = withItem({
+      customBg: "#E11D48",
+      customColor: "#FFFFFF",
+      customBorderColor: "#BE123C",
+      customBorderWidth: 2,
+      customRadius: 16,
+      customFontSize: 18,
+      customFontWeight: 700,
+      customPadding: 16,
+      customOpacity: 90,
+      customHeight: 48,
+      customShadow: 2,
+    });
+    await expect(readProject(new File([JSON.stringify(value)], "custom.json"))).resolves.toEqual(value);
   });
 });

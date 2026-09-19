@@ -9,6 +9,7 @@ import {
   H,
   Item,
   Kind,
+  clamp,
   MEASURED,
   NAV_BAR_H,
   Palette,
@@ -247,7 +248,7 @@ export function ButtonContent({ item }: { item: Item }) {
   /* padding, gap, icon and label all come from the M3 size the height lands on;
    * with no label the icon is centred instead, which makes the button a circle */
   const m = buttonMetrics(buttonHeightOf(item));
-  const padX = hasLabel ? m.padX : Math.round((m.h - m.icon) / 2);
+  const padX = item.customPadding !== undefined ? item.customPadding : (hasLabel ? m.padX : Math.round((m.h - m.icon) / 2));
   return (
     <span
       className="m3-size-ease"
@@ -260,14 +261,14 @@ export function ButtonContent({ item }: { item: Item }) {
         gap: hasIcon && hasLabel ? m.gap : 0,
         paddingLeft: padX,
         paddingRight: padX,
-        height: m.h,
-        fontSize: m.font,
-        fontWeight: w(500, 700),
+        height: item.customHeight ?? m.h,
+        fontSize: item.customFontSize ?? m.font,
+        fontWeight: item.customFontWeight ?? w(500, 700),
         letterSpacing: 0.1,
         whiteSpace: "nowrap",
       }}
     >
-      {hasIcon && <Icon name={item.icon!} size={m.icon} fill={item.variant === "filled"} />}
+      {hasIcon && <Icon name={item.icon!} size={m.icon} fill={item.variant === "filled"} color={item.customColor} />}
       {hasLabel && <span>{item.label}</span>}
     </span>
   );
@@ -305,6 +306,8 @@ function ChipContent({ item, p }: { item: Item; p: Palette }) {
   const lead = on ? "check" : item.icon;
   /* the padding, the icon and the label are the ones the height it was given asks for */
   const m = chipMetrics(chipHeightOf(item));
+  const padLead = item.customPadding !== undefined ? item.customPadding : (lead ? m.lead : m.padX);
+  const padTrail = item.customPadding !== undefined ? item.customPadding : m.padX;
   return (
     <span
       className="m3-size-ease"
@@ -312,16 +315,16 @@ function ChipContent({ item, p }: { item: Item; p: Palette }) {
         display: "inline-flex",
         alignItems: "center",
         gap: m.gap,
-        paddingLeft: lead ? m.lead : m.padX,
-        paddingRight: m.padX,
-        height: m.h,
-        fontSize: m.font,
-        fontWeight: 500,
+        paddingLeft: padLead,
+        paddingRight: padTrail,
+        height: item.customHeight ?? m.h,
+        fontSize: item.customFontSize ?? m.font,
+        fontWeight: item.customFontWeight ?? 500,
         whiteSpace: "nowrap",
-        color: on ? p.onSecondaryContainer : undefined,
+        color: item.customColor ?? (on ? p.onSecondaryContainer : undefined),
       }}
     >
-      {lead && <Icon name={lead} size={m.icon} />}
+      {lead && <Icon name={lead} size={m.icon} color={item.customColor} />}
       <span>{item.label}</span>
     </span>
   );
@@ -404,18 +407,19 @@ function CheckboxContent({ item, p }: { item: Item; p: Palette }) {
 
 function TextContent({ item, p }: { item: Item; p: Palette }) {
   const w = useWeight();
-  const fs = item.size ?? 28;
+  const fs = item.customFontSize ?? item.size ?? 28;
+  const fw = item.customFontWeight ?? (item.bold ? w(700, 800) : w(400, fs >= 22 ? 600 : 500));
   return (
     <span
       style={{
         display: "inline-block",
         fontSize: fs,
         lineHeight: 1.3,
-        fontWeight: item.bold ? w(700, 800) : w(400, fs >= 22 ? 600 : 500),
+        fontWeight: fw,
         letterSpacing: fs >= 28 ? -0.25 : 0,
-        color: p.onSurface,
+        color: item.customColor ?? p.onSurface,
         whiteSpace: "nowrap",
-        padding: "0 2px",
+        padding: item.customPadding !== undefined ? `${item.customPadding}px` : "0 2px",
       }}
     >
       {item.label || " "}
@@ -1684,75 +1688,101 @@ function Body({ item, p, tabScroll, menuShown }: { item: Item; p: Palette; tabSc
  *  takes: white over a filled button, the text's own colour over a pale surface. A split button
  *  paints no box of its own, so its two segments answer for it. */
 export function contentColor(item: Item, p: Palette): string {
+  if (item.customColor) return item.customColor;
   const c = item.kind === "splitButton" ? variantStyle(item.variant, p).color : boxStyle(item, p).color;
   return typeof c === "string" ? c : p.onSurface;
 }
 
 /** how the part's box is painted: the panel paints its style cells with the same answer */
 export function boxStyle(item: Item, p: Palette): React.CSSProperties {
-  if (NO_BOX.includes(item.kind) || menuOpen(item)) return { background: "transparent", border: "none" };
-  switch (item.kind) {
-    case "box": {
-      const t = item.fill ?? "surfaceContainerLow";
-      return { background: p[t], color: onToken(t, p), border: "none" };
+  const base: React.CSSProperties = (() => {
+    if (NO_BOX.includes(item.kind) || menuOpen(item)) return { background: "transparent", border: "none" };
+    switch (item.kind) {
+      case "box": {
+        const t = item.fill ?? "surfaceContainerLow";
+        return { background: p[t], color: onToken(t, p), border: "none" };
+      }
+      case "button":
+      case "iconButton":
+      case "fab":
+      case "extendedFab":
+        return variantStyle(item.variant, p);
+      case "chip":
+        if (item.checked) return { background: p.secondaryContainer, color: p.onSecondaryContainer, border: "none" };
+        return item.variant === "outlined"
+          ? { background: "transparent", color: p.onSurfaceVariant, border: `1px solid ${p.outlineVariant}` }
+          : { background: p.surfaceContainerLow, color: p.onSurfaceVariant, border: "none" };
+      case "card":
+        return { background: p[cardFillOf(item)], border: item.variant === "outlined" ? `1px solid ${p.outlineVariant}` : "none" };
+      case "textField":
+      case "select":
+        return item.variant === "filled"
+          ? { background: p.surfaceContainerHighest, border: "none", color: p.onSurface }
+          : { background: p.surface, border: `1px solid ${p.outline}`, color: p.onSurface };
+      case "topAppBar":
+      case "bottomNav":
+      case "navRail":
+        return { background: p.surfaceContainer, border: "none", color: p.onSurface };
+      case "toolbar":
+        return item.variant === "filled"
+          ? { background: p.primaryContainer, border: "none", color: p.onPrimaryContainer }
+          : { background: p.surfaceContainer, border: "none", color: p.onSurfaceVariant };
+      case "tabs":
+        return { background: p.surface, border: "none", color: p.onSurface };
+      case "searchBar":
+        return item.variant === "outlined"
+          ? { background: p.surface, border: `1px solid ${p.outline}`, color: p.onSurface }
+          : { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
+      case "dialog":
+        return { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
+      case "datePicker":
+        /* typed in, a date is a field on the screen rather than a surface over it */
+        return dateLayoutOf(item) === "input"
+          ? { background: "transparent", border: "none", color: p.onSurface }
+          : { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
+      case "timePicker":
+        return { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
+      case "snackbar":
+        return { background: p.inverseSurface, border: "none", color: p.inverseOnSurface };
+      case "image":
+      case "map":
+        return { background: p.surfaceContainerHighest, border: "none" };
+      case "camera":
+        return { background: p.inverseSurface, border: "none", color: p.inverseOnSurface };
+      case "listItem": {
+        const t = item.fill ?? "surfaceContainerLow";
+        return { background: p[t], border: "none", color: onToken(t, p) };
+      }
+      default:
+        return { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
     }
-    case "button":
-    case "iconButton":
-    case "fab":
-    case "extendedFab":
-      return variantStyle(item.variant, p);
-    case "chip":
-      if (item.checked) return { background: p.secondaryContainer, color: p.onSecondaryContainer, border: "none" };
-      return item.variant === "outlined"
-        ? { background: "transparent", color: p.onSurfaceVariant, border: `1px solid ${p.outlineVariant}` }
-        : { background: p.surfaceContainerLow, color: p.onSurfaceVariant, border: "none" };
-    case "card":
-      return { background: p[cardFillOf(item)], border: item.variant === "outlined" ? `1px solid ${p.outlineVariant}` : "none" };
-    case "textField":
-    case "select":
-      return item.variant === "filled"
-        ? { background: p.surfaceContainerHighest, border: "none", color: p.onSurface }
-        : { background: p.surface, border: `1px solid ${p.outline}`, color: p.onSurface };
-    case "topAppBar":
-    case "bottomNav":
-    case "navRail":
-      return { background: p.surfaceContainer, border: "none", color: p.onSurface };
-    case "toolbar":
-      return item.variant === "filled"
-        ? { background: p.primaryContainer, border: "none", color: p.onPrimaryContainer }
-        : { background: p.surfaceContainer, border: "none", color: p.onSurfaceVariant };
-    case "tabs":
-      return { background: p.surface, border: "none", color: p.onSurface };
-    case "searchBar":
-      return item.variant === "outlined"
-        ? { background: p.surface, border: `1px solid ${p.outline}`, color: p.onSurface }
-        : { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
-    case "dialog":
-      return { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
-    case "datePicker":
-      /* typed in, a date is a field on the screen rather than a surface over it */
-      return dateLayoutOf(item) === "input"
-        ? { background: "transparent", border: "none", color: p.onSurface }
-        : { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
-    case "timePicker":
-      return { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
-    case "snackbar":
-      return { background: p.inverseSurface, border: "none", color: p.inverseOnSurface };
-    case "image":
-    case "map":
-      return { background: p.surfaceContainerHighest, border: "none" };
-    case "camera":
-      return { background: p.inverseSurface, border: "none", color: p.inverseOnSurface };
-    case "listItem": {
-      const t = item.fill ?? "surfaceContainerLow";
-      return { background: p[t], border: "none", color: onToken(t, p) };
-    }
-    default:
-      return { background: p.surfaceContainerHigh, border: "none", color: p.onSurface };
+  })();
+
+  const overrides: React.CSSProperties = {};
+  if (item.customBg !== undefined) overrides.background = item.customBg;
+  if (item.customColor !== undefined) overrides.color = item.customColor;
+  if (item.customBorderWidth !== undefined || item.customBorderColor !== undefined) {
+    overrides.border =
+      item.customBorderWidth === 0
+        ? "none"
+        : `${item.customBorderWidth ?? 1}px solid ${item.customBorderColor ?? p.outline}`;
   }
+
+  return { ...base, ...overrides };
 }
 
+const SHADOW_LEVELS = [
+  "none",
+  "0 1px 3px rgba(0,0,0,0.14), 0 1px 2px rgba(0,0,0,0.08)",
+  "0 3px 8px rgba(0,0,0,0.18), 0 1px 3px rgba(0,0,0,0.12)",
+  "0 8px 24px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.10)",
+  "0 16px 36px rgba(0,0,0,0.22), 0 4px 12px rgba(0,0,0,0.14)",
+];
+
 function shadowOf(item: Item): string {
+  if (item.customShadow !== undefined) {
+    return SHADOW_LEVELS[clamp(item.customShadow, 0, SHADOW_LEVELS.length - 1)];
+  }
   if (NO_BOX.includes(item.kind) || menuOpen(item)) return "none";
   switch (item.kind) {
     case "navRail":
@@ -1900,6 +1930,8 @@ export function M3Node({
         display: measured ? "inline-flex" : "block",
         alignItems: "center",
         overflow: clips ? "hidden" : "visible",
+        opacity: drawn.customOpacity !== undefined ? drawn.customOpacity / 100 : undefined,
+        padding: drawn.customPadding !== undefined ? `${drawn.customPadding}px` : undefined,
         /* the selection ring sticks out 5px (3px offset + 2px ring); in a run the next
            sibling sits 3px away and would overpaint that edge — lift the selected part.
            Runs never overlap, so the lift only beats the sibling that hides the ring.
@@ -1957,6 +1989,8 @@ export function M3Static({
         display: measured ? "inline-flex" : "block",
         alignItems: "center",
         overflow: clips ? "hidden" : "visible",
+        opacity: item.customOpacity !== undefined ? item.customOpacity / 100 : undefined,
+        padding: item.customPadding !== undefined ? `${item.customPadding}px` : undefined,
         boxSizing: "border-box",
         boxShadow: shadowOf(item),
         borderTopLeftRadius: r.tl,

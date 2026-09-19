@@ -52,6 +52,7 @@ import { arcPath, wavePath } from "./Loading";
 import { Icon } from "./M3Node";
 import { AiHooks } from "./Inspector";
 import { AlignBox, CornerRows, EdgeCornerRows, EntryList, FillRun, IconRow, IconStrip, ListStyleRun, NoTriggerNote, NoteSection, PartHeader, PartTabs, PlaceFn, StyleRun, Tab, TriggerSection, WidthRows, hasTrigger } from "./PartPanel";
+import { CustomStyleSection } from "./CustomStyleSection";
 import { t, useLang } from "@/lib/i18n";
 
 /* One panel for every part that is not a button. It wears the button's chrome -- the title row,
@@ -774,6 +775,7 @@ export function PartInspector({
           <AlignBox key={item.id} onPlace={onPlace} p={p} />
         </Section>
       )}
+      <CustomStyleSection item={item} onChange={onChange} palette={p} />
     </>
   );
 

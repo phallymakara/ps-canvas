@@ -821,6 +821,18 @@ function notes(g: Group, frames: Frame[], lang: Lang): string[] {
         parts.push(`is a toggle button that flips on / off with every tap${changes.length ? ` (when on, ${changes.join(" and ")})` : ""}`);
       }
     }
+    const customStyles: string[] = [];
+    if (it.customBg) customStyles.push(`background: ${it.customBg}`);
+    if (it.customColor) customStyles.push(`text color: ${it.customColor}`);
+    if (it.customBorderWidth !== undefined || it.customBorderColor !== undefined) {
+      customStyles.push(`border: ${it.customBorderWidth ?? 1}px solid ${it.customBorderColor ?? "outline"}`);
+    }
+    if (it.customRadius !== undefined) customStyles.push(`corner radius: ${it.customRadius}dp`);
+    if (it.customFontSize !== undefined) customStyles.push(`font size: ${it.customFontSize}sp`);
+    if (it.customOpacity !== undefined) customStyles.push(`opacity: ${it.customOpacity}%`);
+    if (customStyles.length) {
+      parts.push(lang === "ja" ? `カスタムスタイル（${customStyles.join("、")}）を適用する` : `has custom styling (${customStyles.join(", ")})`);
+    }
     if (hasText(it.note)) parts.push(trimEnd(it.note!));
     if (!parts.length) continue;
     if (lang === "ja") out.push(`${name}は、${parts.join("。また、")}。`);
