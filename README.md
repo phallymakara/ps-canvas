@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="app/icon.svg" width="72" alt="" />
+  <img src="app/icon.svg" width="72" alt="PS Canvas" />
 </p>
 
 <h1 align="center">PS Canvas</h1>
@@ -9,6 +9,7 @@
 </p>
 
 <p align="center">
+  <a href="https://phallymakara.github.io/ps-canvas/"><img alt="Live demo" src="https://img.shields.io/badge/demo-phallymakara.github.io%2Fps--canvas-6750A4?logo=googlechrome&logoColor=white" /></a>
   <a href="https://github.com/phallymakara/ps-canvas"><img alt="GitHub repository" src="https://img.shields.io/badge/github-phallymakara%2Fps--canvas-6750A4?logo=github&logoColor=white" /></a>
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
   <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-black?logo=nextdotjs" />
@@ -17,15 +18,7 @@
   <img alt="No backend" src="https://img.shields.io/badge/backend-none%20(localStorage)-2E6A45" />
 </p>
 
-<p align="center">
-  <a href="https://trendshift.io/repositories/208608"><img alt="Trendshift: #1 repository of the day" src="https://trendshift.io/api/badge/trendshift/repositories/208608/daily" width="250" height="55" /></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/phallymakara/ps-canvas">GitHub Repository</a>
-</p>
-
-![Sketching a recipes app in M3E Canvas, changing its theme, copying the prompt, an AI coding tool building it, and the app running on Android](docs/story.gif)
+![Sketching a recipes app in PS Canvas, changing its theme, copying the prompt, an AI coding tool building it, and the app running on Android](docs/story.gif)
 
 <p align="center"><sub>Sketch a recipes app, retheme it, copy the prompt, hand it to an AI coding tool, and run the result on Android. (<a href="docs/story.mp4">mp4</a>)</sub></p>
 
@@ -42,9 +35,9 @@ Works with any AI coding tool that takes a prompt, such as Claude Code, Codex, G
 - **Toggle buttons** – any button can flip on tap, changing its icon and style.
 - **Layers and groups** – a layers panel lists the z-order of each screen; drag a row to bring parts forward or send them back, and open a group or a connected run to reorder what is inside it. Select several parts and group them to keep their overlap and move them as one. The prompt describes overlaps and side-by-side rows explicitly so the generated layout keeps them.
 - **Theme** – the four M3 Expressive axes in one panel. Color: seven presets or one seed color that becomes a full Material 3 scheme you can fine-tune, light / dark, three contrast levels and a dynamic-color switch (match the phone wallpaper). Shape: square, rounded or full corners for every part at once. Type: Roboto, Roboto Flex, Roboto Serif or the system font, with the emphasized styles. Motion: the standard or the expressive spring scheme, which also drives the preview.
-- **Prompt output** – the whole design (or a single screen) becomes a concise natural-language prompt in Japanese, English, Chinese or Korean, including your own notes on what each part does. Pick Android (the default) or the web as the target and the prompt asks for the matching stack.
+- **Prompt output** – the whole design (or a single screen) becomes a concise natural-language prompt in English, including your own notes on what each part does. Pick Android (the default) or the web as the target and the prompt asks for the matching stack.
 - **Tidy** – one button snaps bars to the edges, the FAB to the corner, joins neighbouring list items and buttons, and stacks the rest on 16dp margins. Press it again to undo.
-- **Optional AI helper** – bring your own key (OpenAI, Claude, Gemini or DeepSeek) and let the model write a part's behavior note or a screen's description, in your language. Each rewrite can be undone. The key stays in your browser and the request goes straight to the provider; there is no server in between.
+- **Optional AI helper** – bring your own key (OpenAI, Claude, Gemini or DeepSeek) and let the model write a part's behavior note or a screen's description in English. Each rewrite can be undone. The key stays in your browser and the request goes straight to the provider; there is no server in between.
 - **Export** – copy the prompt (edit it by hand first if you like) or save a screen as a PNG.
 - **Share links and AI drafts (beta)** – copy a link that opens your design on anyone's canvas, or copy an instruction for Claude Code, Codex or another coding agent: it reads [agent.md](public/agent.md), sketches what you described, and replies with such a link.
 - **Alignment guides**, undo/redo, keyboard shortcuts, seven color themes, a favorites row in the parts panel, and everything is saved in your browser (localStorage).
@@ -53,7 +46,7 @@ Works with any AI coding tool that takes a prompt, such as Claude Code, Codex, G
 <table>
   <tr>
     <td width="50%"><img src="docs/preview.png" alt="Tap-through preview" /><br /><sub>Preview: tap a part and the linked screen slides in.</sub></td>
-    <td width="50%"><img src="docs/prompt.png" alt="Prompt panel" /><br /><sub>Prompt: the design as a concise brief in the selected language.</sub></td>
+    <td width="50%"><img src="docs/prompt.png" alt="Prompt panel" /><br /><sub>Prompt: the design as a concise brief in English.</sub></td>
   </tr>
 </table>
 
@@ -91,10 +84,6 @@ Bug reports, part requests and pull requests are welcome. [CONTRIBUTING.md](CONT
 
 PS Canvas is free and MIT-licensed, and stays that way.
 
-Thanks to the sponsors who keep this going:
-
-- [Yspritan](https://github.com/YspritanHyzygy)
-
 ## Credits
 
 - Loading indicator shapes and animation model: [material-components-android](https://github.com/material-components/material-components-android) (Apache-2.0) via [Aler1x/m3-loading-indicator](https://github.com/Aler1x/m3-loading-indicator). See `NOTICE`.
@@ -107,4 +96,4 @@ Thanks to the sponsors who keep this going:
 
 ## License
 
-MIT © lnkiai
+MIT © phallymakara
